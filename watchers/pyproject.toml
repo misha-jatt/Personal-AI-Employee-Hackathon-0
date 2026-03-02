@@ -1,0 +1,31 @@
+[project]
+name = "ai-employee-watchers"
+version = "0.1.0"
+description = "Perception layer for the AI Employee — file system watchers"
+requires-python = ">=3.13"
+dependencies = [
+    "watchdog>=4.0.0",
+    "python-dotenv>=1.0.0",
+    "slack-sdk>=3.0.0",
+    "google-auth>=2.0.0",
+    "google-auth-oauthlib>=1.0.0",
+    "google-api-python-client>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+]
+
+[project.scripts]
+watch-inbox = "src.filesystem_watcher:main"
+watch-gmail = "src.gmail_watcher:main"
+watch-approvals = "src.approval_watcher:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

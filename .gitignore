@@ -1,0 +1,36 @@
+# Secrets — NEVER commit
+.env
+watchers/.env
+*.credentials.json
+**/credentials/
+**/secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+.venv/
+.python-version
+
+# UV
+uv.lock
+
+# Obsidian workspace (user-specific, not project config)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs older than 90 days should be archived, not committed
+# Logs/*.json are tracked for audit purposes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
