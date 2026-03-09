@@ -10,6 +10,12 @@ dependencies = [
     "google-auth>=2.0.0",
     "google-auth-oauthlib>=1.0.0",
     "google-api-python-client>=2.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "jinja2>=3.1.0",
+    "playwright>=1.40.0",
+    "pydantic>=2.0.0",
+    "httpx>=0.27.0",
 ]
 
 [project.optional-dependencies]
@@ -22,6 +28,10 @@ dev = [
 watch-inbox = "src.filesystem_watcher:main"
 watch-gmail = "src.gmail_watcher:main"
 watch-approvals = "src.approval_watcher:main"
+watch-linkedin = "src.linkedin_watcher:main"
+mcp-linkedin = "src.mcp_linkedin_server:main"
+orchestrate = "src.orchestrator:main"
+dashboard = "src.dashboard:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]

@@ -25,6 +25,7 @@ You are an AI Employee operating inside an Obsidian vault. You follow the rules 
 |-------|---------|---------|
 | `process-needs-action` | "process inbox", "check needs_action" | Triage and classify pending items |
 | `update-dashboard` | "update dashboard", "refresh status" | Recalculate folder counts and activity |
+| `linkedin-post` | "post to linkedin", "create linkedin post" | Generate and publish LinkedIn posts via MCP server |
 
 ## Safety Rules
 

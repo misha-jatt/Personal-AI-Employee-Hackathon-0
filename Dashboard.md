@@ -14,10 +14,12 @@ tier: silver
 | FileSystem Watcher   | `READY`   | 2026-03-02 18:00 UTC |
 | Gmail Watcher        | `READY`   | 2026-03-02 18:00 UTC |
 | Approval Watcher     | `READY`   | 2026-03-02 18:00 UTC |
+| LinkedIn Watcher     | `READY`   | 2026-03-06 UTC       |
+| LinkedIn MCP Server  | `READY`   | 2026-03-06 UTC       |
 | Slack Notifications  | `READY`   | 2026-03-02 18:00 UTC |
 | Google Calendar      | `READY`   | 2026-03-02 18:00 UTC |
 | Tool Layer (Gmail)   | `READY`   | 2026-03-02 18:00 UTC |
-| Tool Layer (LinkedIn)| `PENDING` | Needs access token   |
+| Tool Layer (LinkedIn)| `READY`   | 2026-03-06 UTC       |
 | Claude Code          | `READY`   | 2026-03-02 18:00 UTC |
 | Dry-Run Mode         | `ON`      | —                    |
 
@@ -33,15 +35,16 @@ tier: silver
 | Rejected          | 0     | —                                        |
 | Plans             | 0     | —                                        |
 
-## Watchers (3 total)
+## Watchers (4 total)
 
 | Watcher            | Entry Point        | Poll Interval | Scope                    |
 |--------------------|--------------------|---------------|--------------------------|
 | FileSystem Watcher | `watch-inbox`      | 5s            | /Inbox file drops        |
 | Gmail Watcher      | `watch-gmail`      | 120s           | Unread important emails  |
 | Approval Watcher   | `watch-approvals`  | 10s           | /Approved folder         |
+| LinkedIn Watcher   | `watch-linkedin`   | 15s           | LinkedIn social_post tasks |
 
-## Agent Skills (7 total)
+## Agent Skills (8 total)
 
 | Skill              | Purpose                                      |
 |--------------------|----------------------------------------------|
@@ -50,6 +53,7 @@ tier: silver
 | agent-md-refactor  | Refactor agent markdown files                |
 | gmail-watcher      | Monitor Gmail for unread important emails    |
 | hitl-approval      | HITL approval gate for sensitive actions     |
+| linkedin-post      | LinkedIn post automation via MCP + Playwright |
 | planning-agent     | Create structured plans in /Plans            |
 | tool-integration   | Extensible API tool layer (Gmail, LinkedIn)  |
 
@@ -61,6 +65,25 @@ tier: silver
 | **gmail**  | send_email                                    | Yes (approval gate) |
 | **linkedin** | get_profile, get_connections                | No                  |
 | **linkedin** | create_post                                 | Yes (approval gate) |
+
+## LinkedIn Automation (MCP Server)
+
+| Endpoint | Purpose | Status |
+|----------|---------|--------|
+| `/linkedin_login` | Browser login via Playwright | `READY` |
+| `/linkedin_create_post` | Draft a post | `READY` |
+| `/linkedin_publish_post` | Publish via browser | `READY` |
+| `/linkedin_logout` | Close browser session | `READY` |
+
+### LinkedIn Post Pipeline
+
+| Metric | Count |
+|--------|-------|
+| Scheduled (Pending Approval) | 0 |
+| Published | 0 |
+| Rejected | 0 |
+
+> Logs: `/Logs/linkedin_logs.md`
 
 ## Services
 
@@ -88,6 +111,8 @@ tier: silver
 
 ## Recent Activity
 
+- [2026-03-06] `linkedin-post`: LinkedIn MCP server + watcher + agent skill created (Playwright automation)
+- [2026-03-03] `tool-integration`: LinkedIn access token configured — tool layer now READY
 - [2026-03-02 18:00] `update-dashboard`: Dashboard refresh — 244 tests passing, all systems nominal
 - [2026-03-02 12:00] `update-dashboard`: Full dashboard refresh — Silver tier components complete
 - [2026-03-02 11:00] `tool-integration`: Gmail + LinkedIn tool layer created (33 tests)

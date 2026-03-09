@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="15">
+    <title>AI Employee Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #0f172a; }
+        .card-inbox { border-left: 4px solid #3b82f6; }
+        .card-needs_action { border-left: 4px solid #f59e0b; }
+        .card-done { border-left: 4px solid #22c55e; }
+        .card-pending_approval { border-left: 4px solid #a855f7; }
+        .card-approved { border-left: 4px solid #06b6d4; }
+        .card-rejected { border-left: 4px solid #ef4444; }
+    </style>
+</head>
+<body class="text-gray-200 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-white">AI Employee Dashboard</h1>
+                <p class="text-sm text-slate-400 mt-1">{{ status.vault_path }}</p>
+            </div>
+            <div class="flex items-center gap-4">
+                {% if status.dry_run %}
+                <span class="px-3 py-1 text-sm font-semibold rounded-full bg-yellow-900 text-yellow-300 border border-yellow-700">DRY RUN</span>
+                {% else %}
+                <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-900 text-green-300 border border-green-700">LIVE</span>
+                {% endif %}
+                <span class="text-sm text-slate-500">{{ now }}</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-6 space-y-8">
+
+        <!-- Config Errors -->
+        {% if status.config_errors %}
+        <div class="bg-red-900/40 border border-red-700 rounded-lg p-4">
+            <h3 class="text-red-400 font-semibold mb-2">Configuration Errors</h3>
+            <ul class="list-disc list-inside text-red-300 text-sm">
+                {% for err in status.config_errors %}
+                <li>{{ err }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Queue Overview Cards -->
+        <section>
+            <h2 class="text-lg font-semibold text-slate-300 mb-3">Queue Overview</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {% for name in folder_order %}
+                {% set count = status.folder_counts.get(name, 0) %}
+                <div class="card-{{ name|lower }} bg-slate-800 rounded-lg p-4 hover:bg-slate-750 transition">
+                    <div class="text-3xl font-bold text-white">{{ count }}</div>
+                    <div class="text-sm text-slate-400 mt-1">{{ name | replace("_", " ") }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Folder Detail Tables -->
+        {% for name in folder_order %}
+        {% set items = folders[name] %}
+        {% if items %}
+        <section>
+            <h2 class="text-lg font-semibold text-slate-300 mb-3">{{ name | replace("_", " ") }}</h2>
+            <div class="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-900 text-slate-400 text-left">
+                        <tr>
+                            <th class="px-4 py-3">Title</th>
+                            <th class="px-4 py-3">Type</th>
+                            <th class="px-4 py-3">Priority</th>
+                            <th class="px-4 py-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700">
+                        {% for item in items %}
+                        <tr class="hover:bg-slate-750">
+                            <td class="px-4 py-3 text-white">{{ item.title }}</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-0.5 rounded text-xs bg-slate-700 text-slate-300">{{ item.type }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                {% if item.priority == "high" %}
+                                <span class="px-2 py-0.5 rounded text-xs bg-red-900 text-red-300">high</span>
+                                {% elif item.priority == "medium" %}
+                                <span class="px-2 py-0.5 rounded text-xs bg-yellow-900 text-yellow-300">medium</span>
+                                {% elif item.priority == "low" %}
+                                <span class="px-2 py-0.5 rounded text-xs bg-blue-900 text-blue-300">low</span>
+                                {% else %}
+                                <span class="text-slate-500">{{ item.priority }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-slate-400">{{ item.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+        {% endfor %}
+
+        <!-- Audit Log -->
+        <section>
+            <h2 class="text-lg font-semibold text-slate-300 mb-3">Audit Log (last 25)</h2>
+            <div class="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
+                {% if logs %}
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-900 text-slate-400 text-left">
+                        <tr>
+                            <th class="px-4 py-3">Time</th>
+                            <th class="px-4 py-3">Action</th>
+                            <th class="px-4 py-3">Actor</th>
+                            <th class="px-4 py-3">Target</th>
+                            <th class="px-4 py-3">Result</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700">
+                        {% for entry in logs %}
+                        <tr class="hover:bg-slate-750">
+                            <td class="px-4 py-3 text-slate-400 whitespace-nowrap">{{ entry.timestamp[:19] | replace("T", " ") }}</td>
+                            <td class="px-4 py-3 text-white">{{ entry.action_type }}</td>
+                            <td class="px-4 py-3 text-slate-400">{{ entry.actor }}</td>
+                            <td class="px-4 py-3 text-slate-400 max-w-xs truncate" title="{{ entry.target }}">{{ entry.target | replace("\\", "/") }}</td>
+                            <td class="px-4 py-3">
+                                {% if entry.result == "success" %}
+                                <span class="px-2 py-0.5 rounded text-xs bg-green-900 text-green-300">success</span>
+                                {% elif entry.result == "error" %}
+                                <span class="px-2 py-0.5 rounded text-xs bg-red-900 text-red-300">error</span>
+                                {% else %}
+                                <span class="px-2 py-0.5 rounded text-xs bg-slate-700 text-slate-300">{{ entry.result }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="px-4 py-6 text-slate-500 text-center">No log entries found.</p>
+                {% endif %}
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-700 mt-8 py-4 text-center text-sm text-slate-500">
+        Auto-refreshes every 15s &middot;
+        <a href="/api/status" class="text-blue-400 hover:text-blue-300">API: /api/status</a> &middot;
+        <a href="/api/logs" class="text-blue-400 hover:text-blue-300">API: /api/logs</a>
+    </footer>
+
+</body>
+</html>
