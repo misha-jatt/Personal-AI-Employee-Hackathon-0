@@ -69,7 +69,7 @@ AI_Employee_Vault/
 ├── README.md                     # This file
 ├── Dashboard.md                  # Live vault status
 ├── Company_Handbook.md           # Business rules & SOPs
-├── requirments.md                # Hackathon spec (reference)
+├── requirements.md               # Hackathon spec (reference)
 ├── .env.example                  # Environment template
 ├── .gitignore                    # Secrets exclusion
 │
